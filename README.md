@@ -280,10 +280,6 @@ Watch the live merchant console update with recovered revenue and stopping rules
 
 ---
 
-## 🎬 5-Minute Video Pitch Walkthrough
-
-See [`PITCH_VIDEO_SCRIPT.md`](PITCH_VIDEO_SCRIPT.md) for the exact slide-by-slide, live demo flow and presentation script tailored to the Razorpay AI Buildathon evaluation criteria.
-
 ---
 
 ## 📄 License
