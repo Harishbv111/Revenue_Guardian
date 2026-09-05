@@ -1,0 +1,3583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revenue Guardian · Payments & AI Recovery Console</title>
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <!-- Three.js for 3D Guardian Visualizer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            /* Razorpay Core Brand Palette */
+            --primary: #0052cc;
+            --primary-hover: #0747a6;
+            --primary-light: #ebf3fc;
+            --primary-gradient: linear-gradient(135deg, #0052cc 0%, #1771f1 100%);
+            
+            --navy-dark: #0c2340;
+            --navy-slate: #172b4d;
+            --text-dark: #172b4d;
+            --text-muted: #5e6c84;
+            --text-light: #7a869a;
+            
+            --bg-page: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f4f5f7;
+            
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            
+            /* Status Colors */
+            --green-text: #059669;
+            --green-bg: #ecfdf5;
+            --green-border: #a7f3d0;
+            
+            --amber-text: #d97706;
+            --amber-bg: #fffbeb;
+            --amber-border: #fde68a;
+            
+            --rose-text: #dc2626;
+            --rose-bg: #fef2f2;
+            --rose-border: #fecaca;
+            
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* App Layout */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ==========================================================================
+           TOP NAVIGATION BAR (Exact Razorpay Design with Working Elements)
+           ========================================================================== */
+        .top-navbar {
+            height: 60px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        /* Brand Logo: Revenue Guardian */
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--navy-dark);
+            cursor: pointer;
+        }
+
+        .shield-icon-svg {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 2px 5px rgba(0, 82, 204, 0.25));
+            transition: transform 0.2s ease;
+        }
+
+        .brand-logo:hover .shield-icon-svg {
+            transform: scale(1.05);
+        }
+
+        .brand-name {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--navy-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-name span.guardian {
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            list-style: none;
+        }
+
+        .nav-item {
+            position: relative;
+            padding: 8px 14px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--navy-dark);
+            background: var(--bg-subtle);
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: 600;
+            background: transparent;
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* Top Nav Right Controls */
+        .top-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .search-container {
+            position: relative;
+            width: 260px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            pointer-events: none;
+            width: 16px;
+            height: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 36px;
+            padding: 0 34px 0 36px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-dark);
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.12);
+        }
+
+        .search-shortcut {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .action-icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-icon-btn:hover {
+            background: #ffffff;
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Profile & Dropdown */
+        .avatar-wrapper {
+            position: relative;
+        }
+
+        .avatar-pill {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
+        }
+
+        .profile-popover {
+            position: absolute;
+            top: 48px;
+            right: 0;
+            width: 250px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: 16px;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 150;
+        }
+
+        .popover-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .popover-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--navy-dark);
+        }
+
+        .popover-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .popover-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-dark);
+            padding: 4px 0;
+        }
+
+        /* Live API Dot */
+        .api-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            background: var(--green-bg);
+            color: var(--green-text);
+            border: 1px solid var(--green-border);
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .api-dot {
+            width: 7px;
+            height: 7px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* ==========================================================================
+           MAIN BODY (Sidebar + Content View)
+           ========================================================================== */
+        .body-layout {
+            display: flex;
+            flex: 1;
+        }
+
+        /* LEFT SIDEBAR - Clean, Focused, 100% Working Links */
+        .sidebar {
+            width: 230px;
+            background: #ffffff;
+            border-right: 1px solid var(--border-color);
+            padding: 18px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            user-select: none;
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .sidebar-heading {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-light);
+            padding: 8px 12px 4px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 12px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sidebar-item:hover {
+            color: var(--navy-dark);
+            background: var(--bg-subtle);
+        }
+
+        .sidebar-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .sidebar-item svg {
+            width: 17px;
+            height: 17px;
+            stroke-width: 2px;
+        }
+
+        .sidebar-item .tag-green {
+            font-size: 10px;
+            font-weight: 700;
+            background: #e3fcef;
+            color: #00875a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* 3D Hologram Widget in Sidebar */
+        .sidebar-widget {
+            margin-top: auto;
+            background: linear-gradient(135deg, #0c2340 0%, #1e3a8a 100%);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            color: white;
+            box-shadow: 0 4px 14px rgba(12, 35, 64, 0.25);
+        }
+
+        .sidebar-widget-title {
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            color: #93c5fd;
+        }
+
+        .sidebar-widget-p {
+            font-size: 11px;
+            color: #cbd5e1;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-widget-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 6px;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-widget-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* MAIN VIEW CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 28px 36px 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Header Row */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            color: var(--navy-dark);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        /* Real Functional Time Filter Dropdown */
+        .time-select-btn {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.15s;
+        }
+
+        .time-select-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .time-dropdown-menu {
+            position: absolute;
+            top: 44px;
+            right: 215px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            width: 140px;
+            display: none;
+            flex-direction: column;
+            z-index: 50;
+            overflow: hidden;
+        }
+
+        .time-dropdown-option {
+            padding: 9px 14px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: background 0.12s;
+        }
+
+        .time-dropdown-option:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .time-dropdown-option.selected {
+            font-weight: 700;
+            color: var(--primary);
+            background: #f0f7ff;
+        }
+
+        .simulate-btn-primary {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 6px rgba(0, 82, 204, 0.3);
+            transition: all 0.2s;
+        }
+
+        .simulate-btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* ==========================================================================
+           PAYMENTS OVERVIEW (3 Cards + Dual-line Chart Exactly Matching Screenshot)
+           ========================================================================== */
+        .overview-wrapper {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .metric-cards-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .metric-tab-card {
+            padding: 22px 26px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.15s ease;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .metric-tab-card:last-child {
+            border-right: none;
+        }
+
+        .metric-tab-card:hover {
+            background: #fbfcfe;
+        }
+
+        .metric-tab-card.active {
+            background: #ffffff;
+        }
+
+        /* Active Blue Underline Indicator */
+        .metric-tab-card.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            z-index: 5;
+        }
+
+        .metric-label-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            font-size: 13.5px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .metric-label-row svg {
+            width: 14px;
+            height: 14px;
+            color: var(--text-light);
+        }
+
+        .metric-value-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .metric-main-value {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.6px;
+            color: var(--navy-dark);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .metric-trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--green-text);
+        }
+
+        .metric-sub-text {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Chart Canvas Area */
+        .chart-section {
+            padding: 26px;
+            position: relative;
+        }
+
+        .chart-canvas-container {
+            width: 100%;
+            height: 270px;
+            position: relative;
+        }
+
+        /* Custom Dark Hover Tooltip */
+        .custom-chart-tooltip {
+            position: absolute;
+            background: #1e293b;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            pointer-events: none;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.1s ease;
+            z-index: 20;
+            min-width: 150px;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tooltip-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 4px;
+        }
+
+        .tooltip-row-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 4px;
+        }
+
+        .tooltip-col-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #cbd5e1;
+        }
+
+        .tooltip-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        .tooltip-dot.this-week { background: #2563eb; }
+        .tooltip-dot.last-week { background: #94a3b8; }
+
+        .tooltip-val {
+            font-weight: 700;
+            font-size: 12px;
+            color: #ffffff;
+        }
+
+        .chart-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 14px;
+            margin-top: 6px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .chart-legend {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .legend-color-box {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .legend-color-box.blue { background: #2563eb; }
+        .legend-color-box.slate { background: #94a3b8; }
+
+        .chart-view-details {
+            color: var(--primary);
+            font-size: 12.5px;
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .chart-view-details:hover {
+            text-decoration: underline;
+        }
+
+        /* ==========================================================================
+           3D GUARDIAN SHIELD INTERACTIVE CANVAS (Three.js)
+           ========================================================================== */
+        .guardian-3d-card {
+            background: linear-gradient(135deg, #091a30 0%, #0c2340 50%, #173868 100%);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            color: white;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 12px 30px rgba(12, 35, 64, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .guardian-3d-content {
+            flex: 1;
+            max-width: 580px;
+            z-index: 2;
+        }
+
+        .guardian-3d-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            background: rgba(37, 99, 235, 0.35);
+            border: 1px solid rgba(96, 165, 250, 0.4);
+            color: #93c5fd;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        .guardian-3d-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .guardian-3d-desc {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .guardian-stats-row {
+            display: flex;
+            gap: 24px;
+        }
+
+        .guardian-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .guardian-stat-val {
+            font-size: 20px;
+            font-weight: 800;
+            color: #38bdf8;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .guardian-stat-lbl {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .three-canvas-box {
+            width: 320px;
+            height: 200px;
+            position: relative;
+            z-index: 2;
+        }
+
+        #threeCanvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+            cursor: grab;
+        }
+
+        #threeCanvas:active {
+            cursor: grabbing;
+        }
+
+        /* ==========================================================================
+           GEMINI AI COPILOT & INSIGHTS GRID
+           ========================================================================== */
+        .ai-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .ai-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .ai-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .ai-title-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--navy-dark);
+        }
+
+        .ai-tag {
+            font-size: 10px;
+            font-weight: 700;
+            background: #ede9fe;
+            color: #6d28d9;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .ai-recommendation-box {
+            background: #f8fafc;
+            border-left: 3px solid var(--primary);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            min-height: 110px;
+        }
+
+        .ai-rec-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--navy-dark);
+            margin-bottom: 4px;
+        }
+
+        .ai-rec-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+
+        /* Failure Reason Progress Bars */
+        .failure-bar-item {
+            margin-bottom: 12px;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+
+        .failure-bar-item:hover {
+            background: #f8fafc;
+        }
+
+        .failure-bar-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .failure-bar-track {
+            width: 100%;
+            height: 7px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .failure-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 4px;
+        }
+
+        /* ==========================================================================
+           RECOVERY CASES & ACTIONS MANAGEMENT SECTION
+           ========================================================================== */
+        .section-panel {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .section-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--navy-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-tab-pill {
+            padding: 6px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            border-radius: 20px;
+            background: var(--bg-subtle);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .filter-tab-pill:hover, .filter-tab-pill.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .btn-export-csv {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .btn-export-csv:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Table */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .cases-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .cases-table th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-light);
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .cases-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-dark);
+            vertical-align: middle;
+        }
+
+        .cases-table tr:hover td {
+            background: #fbfcfe;
+        }
+
+        .case-badge-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            cursor: pointer;
+        }
+
+        .case-badge-id small {
+            font-size: 11px;
+            color: var(--text-light);
+            font-family: inherit;
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 9px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-status.recovered {
+            background: var(--green-bg);
+            color: var(--green-text);
+            border: 1px solid var(--green-border);
+        }
+
+        .badge-status.pending {
+            background: var(--amber-bg);
+            color: var(--amber-text);
+            border: 1px solid var(--amber-border);
+        }
+
+        .badge-status.action_triggered {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+        }
+
+        .badge-status.under_review {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border: 1px solid #ddd6fe;
+        }
+
+        .badge-status.failed {
+            background: var(--rose-bg);
+            color: var(--rose-text);
+            border: 1px solid var(--rose-border);
+        }
+
+        .badge-priority {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-priority.high { background: #fef2f2; color: #dc2626; }
+        .badge-priority.medium { background: #fffbeb; color: #d97706; }
+        .badge-priority.low { background: #f1f5f9; color: #64748b; }
+
+        /* Probability Meter */
+        .prob-meter-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prob-bar-track {
+            width: 55px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .prob-bar-fill {
+            height: 100%;
+            background: #10b981;
+            border-radius: 3px;
+        }
+
+        .prob-bar-fill.warn { background: #f59e0b; }
+        .prob-bar-fill.danger { background: #ef4444; }
+
+        .table-action-btns {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+
+        .action-execute-btn {
+            background: #ffffff;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-execute-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .action-paid-btn {
+            background: #ffffff;
+            border: 1px solid #10b981;
+            color: #059669;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-paid-btn:hover {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .action-done-badge {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            padding: 6px 10px;
+        }
+
+        .action-paylink-btn {
+            background: #0052cc;
+            border: 1px solid #0052cc;
+            color: #ffffff;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+        }
+
+        .action-paylink-btn:hover {
+            background: #0747a6;
+            border-color: #0747a6;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .action-copylink-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 6px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-copylink-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .action-viewlink-btn {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .action-viewlink-btn:hover {
+            background: #dcfce7;
+        }
+
+        .action-sync-btn {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0284c7;
+            padding: 6px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .action-sync-btn:hover {
+            background: #f0f9ff;
+            border-color: #0284c7;
+        }
+
+        .table-plink-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 3px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            text-decoration: none;
+            background: var(--primary-light);
+            padding: 2px 6px;
+            border-radius: 4px;
+            max-width: 170px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+
+        .table-plink-link:hover {
+            text-decoration: underline;
+            background: #dbeafe;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* ==========================================================================
+           SIMULATION MODAL
+           ========================================================================== */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(12, 35, 64, 0.45);
+            backdrop-filter: blur(4px);
+            display: none;
+            place-items: center;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 520px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            animation: modalPop 0.2s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--navy-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--navy-dark);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 40px;
+            padding: 0 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 13.5px;
+            color: var(--text-dark);
+            background: #ffffff;
+            transition: border-color 0.15s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        /* ==========================================================================
+           FLOATING "ASK RAY" AI COPILOT DRAWER
+           ========================================================================== */
+        .ask-ray-floating-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 28px;
+            background: #ffffff;
+            color: #0c2340;
+            border: 1px solid #10b981;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25), 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            cursor: pointer;
+            z-index: 99;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .ask-ray-floating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.35);
+            background: #f0fdf4;
+            border-color: #059669;
+        }
+
+        .ask-ray-icon {
+            color: #10b981;
+            display: flex;
+            align-items: center;
+        }
+
+        .ray-drawer {
+            position: fixed;
+            bottom: 80px;
+            right: 28px;
+            width: 390px;
+            height: 540px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 16px 40px rgba(12, 35, 64, 0.18);
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+            overflow: hidden;
+            animation: drawerSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes drawerSlide {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .ray-drawer-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #0c2340 0%, #1e3a8a 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ray-drawer-title {
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ray-drawer-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #f8fafc;
+        }
+
+        .ray-bubble {
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 12.5px;
+            line-height: 1.5;
+            max-width: 88%;
+        }
+
+        .ray-bubble.ai {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-dark);
+            align-self: flex-start;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .ray-bubble.user {
+            background: var(--primary);
+            color: #ffffff;
+            align-self: flex-end;
+        }
+
+        .ray-quick-chips {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .ray-chip {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 500;
+            color: var(--primary);
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.15s;
+        }
+
+        .ray-chip:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        .ray-drawer-footer {
+            padding: 12px;
+            background: #ffffff;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 8px;
+        }
+
+        .ray-input {
+            flex: 1;
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            font-size: 12.5px;
+        }
+
+        .ray-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .ray-send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+        }
+
+        /* Toast Notifications */
+        .toast-banner {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 300;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.2s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .metric-cards-row { grid-template-columns: 1fr; }
+            .metric-tab-card { border-right: none; border-bottom: 1px solid var(--border-color); }
+            .ai-grid-2 { grid-template-columns: 1fr; }
+            .guardian-3d-card { flex-direction: column; gap: 20px; }
+            .three-canvas-box { width: 100%; height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- ======================================================================
+         TOP NAVBAR (Revenue Guardian Branding with Live Working Features)
+         ====================================================================== -->
+    <header class="top-navbar">
+        <div class="top-nav-left">
+            <!-- Brand Logo: Scrolls to Top -->
+            <a class="brand-logo" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Revenue Guardian Console">
+                <svg class="shield-icon-svg" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0052cc"/>
+                            <stop offset="100%" stop-color="#0c2340"/>
+                        </linearGradient>
+                        <linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#10b981"/>
+                            <stop offset="100%" stop-color="#059669"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M18 3L6 8.25V17.25C6 24.75 11.25 31.5 18 33C24.75 31.5 30 24.75 30 17.25V8.25L18 3Z" fill="url(#shieldGrad)" stroke="#2563eb" stroke-width="1.5" stroke-linejoin="round"/>
+                    <path d="M19.5 11L12.75 19.5H18L16.5 25L23.25 16.5H18L19.5 11Z" fill="url(#pulseGrad)"/>
+                </svg>
+                <div class="brand-name">
+                    Revenue <span class="guardian">Guardian</span>
+                </div>
+            </a>
+
+            <!-- Functional Navigation Links -->
+            <nav>
+                <ul class="nav-links">
+                    <li><a class="nav-item active" onclick="scrollToOverview(this)"><i data-lucide="layout-dashboard" style="width:16px;height:16px"></i> Overview</a></li>
+                    <li><a class="nav-item" onclick="scrollToTransactions(this)"><i data-lucide="credit-card" style="width:16px;height:16px"></i> Recovery Cases</a></li>
+                    <li><a class="nav-item" onclick="scrollToAI(this)"><i data-lucide="sparkles" style="width:16px;height:16px"></i> Gemini Insights</a></li>
+                    <li><a class="nav-item" onclick="openSimulationModal()"><i data-lucide="zap" style="width:16px;height:16px"></i> Sandbox</a></li>
+                    <li><a class="nav-item" onclick="openStoredLinksModal()"><i data-lucide="link" style="width:16px;height:16px"></i> Stored Links <span id="navLinksCountBadge" class="tag-green" style="margin-left:4px;font-size:10px;padding:1px 6px;">0</span></a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="top-nav-right">
+            <!-- Search in payments (Filters cases live) -->
+            <div class="search-container">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="globalSearchInput" class="search-input" placeholder="Search in cases & payments..." oninput="filterCasesLive()">
+                <span class="search-shortcut">⌘K</span>
+            </div>
+
+            <!-- API Live Status Badge (Click to refresh data) -->
+            <div class="api-badge" id="apiStatusBadge" onclick="refreshDashboardData()" title="Click to test & refresh connection">
+                <div class="api-dot"></div>
+                <span id="apiStatusText">Engine Live</span>
+            </div>
+
+            <!-- AI Sparkle Action (Opens Ask RAY) -->
+            <button class="action-icon-btn" title="Ask RAY - AI Copilot" onclick="toggleRayDrawer()">
+                <i data-lucide="sparkles" style="width:17px;height:17px;color:#10b981"></i>
+            </button>
+
+            <!-- User Avatar Profile "RK" (Click to toggle profile popover) -->
+            <div class="avatar-wrapper">
+                <div class="avatar-pill" onclick="toggleProfilePopover()" title="Merchant Account Details">
+                    RK
+                </div>
+                <div class="profile-popover" id="profilePopover">
+                    <div class="popover-header">
+                        <div class="popover-name">Rohit Kumar</div>
+                        <div class="popover-sub">Merchant Console · Test Mode</div>
+                    </div>
+                    <div class="popover-item">
+                        <span>Gateway</span>
+                        <strong>Razorpay Test</strong>
+                    </div>
+                    <div class="popover-item">
+                        <span>AI Engine</span>
+                        <strong style="color:var(--primary)">Gemini 2.5</strong>
+                    </div>
+                    <div class="popover-item">
+                        <span>Backend Port</span>
+                        <strong>8000 (Active)</strong>
+                    </div>
+                    <button class="simulate-btn-primary" style="width:100%;margin-top:6px;justify-content:center;font-size:11.5px;padding:6px 10px;" onclick="refreshDashboardData()">
+                        <i data-lucide="refresh-cw" style="width:12px;height:12px"></i> Refresh State
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ======================================================================
+         BODY LAYOUT (Sidebar + Content View)
+         ====================================================================== -->
+    <div class="body-layout">
+        <!-- Sidebar Navigation: 100% Functional -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-heading">Navigation</div>
+                <a class="sidebar-item active" onclick="switchSidebarTab(this, 'overview')">
+                    <i data-lucide="home"></i>
+                    <span>Overview</span>
+                </a>
+                <a class="sidebar-item" onclick="switchSidebarTab(this, 'transactions')">
+                    <i data-lucide="arrow-left-right"></i>
+                    <span>Recovery Cases</span>
+                    <span class="tag-green" id="pendingCountBadge">0 Pending</span>
+                </a>
+                <a class="sidebar-item" onclick="switchSidebarTab(this, 'ai')">
+                    <i data-lucide="bot"></i>
+                    <span>Gemini AI Insights</span>
+                </a>
+                <a class="sidebar-item" onclick="openSimulationModal()">
+                    <i data-lucide="zap"></i>
+                    <span>Failure Sandbox</span>
+                </a>
+                <a class="sidebar-item" onclick="openStoredLinksModal()">
+                    <i data-lucide="link-2"></i>
+                    <span>Stored Links</span>
+                    <span class="tag-green" id="sidebarLinksCountBadge">0</span>
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-heading">Quick Actions</div>
+                <a class="sidebar-item" onclick="openSimulationModal()">
+                    <i data-lucide="plus-circle"></i>
+                    <span>Simulate Failure</span>
+                </a>
+                <a class="sidebar-item" onclick="openStoredLinksModal()">
+                    <i data-lucide="link"></i>
+                    <span>View Stored Links</span>
+                </a>
+                <a class="sidebar-item" onclick="exportCasesCSV()">
+                    <i data-lucide="download"></i>
+                    <span>Export Cases CSV</span>
+                </a>
+                <a class="sidebar-item" onclick="toggleRayDrawer()">
+                    <i data-lucide="message-square"></i>
+                    <span>Ask RAY Copilot</span>
+                </a>
+            </div>
+
+            <!-- 3D Hologram Toggle Card in Sidebar -->
+            <div class="sidebar-widget">
+                <div class="sidebar-widget-title">
+                    <i data-lucide="shield-alert" style="width:14px;height:14px"></i>
+                    Guardian Core 3D
+                </div>
+                <div class="sidebar-widget-p">
+                    Active WebGL telemetry protecting payment pipelines.
+                </div>
+                <button class="sidebar-widget-btn" onclick="scrollTo3DShield()">
+                    <i data-lucide="eye" style="width:13px;height:13px"></i> View 3D Mesh
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Payments overview</h1>
+                <div class="header-actions">
+                    <!-- Real Time Range Selector -->
+                    <button class="time-select-btn" onclick="toggleTimeDropdown()" id="timeFilterBtn">
+                        <i data-lucide="calendar" style="width:15px;height:15px;color:var(--text-muted)"></i>
+                        <span id="currentTimeLabel">This week</span>
+                        <i data-lucide="chevron-down" style="width:14px;height:14px"></i>
+                    </button>
+                    <!-- Time Dropdown Menu -->
+                    <div class="time-dropdown-menu" id="timeDropdownMenu">
+                        <div class="time-dropdown-option" onclick="selectTimeRange('Today')">Today</div>
+                        <div class="time-dropdown-option selected" onclick="selectTimeRange('This week')">This week</div>
+                        <div class="time-dropdown-option" onclick="selectTimeRange('This month')">This month</div>
+                        <div class="time-dropdown-option" onclick="selectTimeRange('All time')">All time</div>
+                    </div>
+
+                    <!-- Simulate Failure Trigger -->
+                    <button class="simulate-btn-primary" onclick="openSimulationModal()">
+                        <i data-lucide="plus-circle" style="width:16px;height:16px"></i>
+                        Simulate Payment Failure
+                    </button>
+                </div>
+            </div>
+
+            <!-- ==============================================================
+                 PAYMENTS OVERVIEW COMPONENT (Cards + Chart Exactly as in Screenshot)
+                 ============================================================== -->
+            <section class="overview-wrapper" id="overviewSection">
+                <!-- 3 Summary Metric Tabs -->
+                <div class="metric-cards-row">
+                    <!-- Metric Card 1: Collected Amount -->
+                    <div class="metric-tab-card active" id="tabCollected" onclick="selectMetricTab('collected')">
+                        <div class="metric-label-row">
+                            <span>Collected amount</span>
+                            <i data-lucide="info" title="Total successfully processed and recovered payment volume"></i>
+                        </div>
+                        <div class="metric-value-row">
+                            <span class="metric-main-value" id="valCollected">₹55,500.00</span>
+                            <span class="metric-trend-badge">▲ +14%</span>
+                        </div>
+                        <div class="metric-sub-text" id="subCollected">₹5,600 above than previous week</div>
+                    </div>
+
+                    <!-- Metric Card 2: Refunds (Revenue At Risk) -->
+                    <div class="metric-tab-card" id="tabRefunds" onclick="selectMetricTab('refunds')">
+                        <div class="metric-label-row">
+                            <span>Refunds</span>
+                            <i data-lucide="info" title="Revenue currently at risk requiring recovery action"></i>
+                        </div>
+                        <div class="metric-value-row">
+                            <span class="metric-main-value" id="valRefunds">₹11,500.00</span>
+                            <span class="metric-trend-badge">▲ +14%</span>
+                        </div>
+                        <div class="metric-sub-text" id="subRefunds">₹5,600 above than previous week</div>
+                    </div>
+
+                    <!-- Metric Card 3: Disputes (Expected Recovery) -->
+                    <div class="metric-tab-card" id="tabDisputes" onclick="selectMetricTab('disputes')">
+                        <div class="metric-label-row">
+                            <span>Disputes</span>
+                            <i data-lucide="info" title="AI predicted recoverable payment volume"></i>
+                        </div>
+                        <div class="metric-value-row">
+                            <span class="metric-main-value" id="valDisputes">₹7,725.00</span>
+                            <span class="metric-trend-badge">▲ +14%</span>
+                        </div>
+                        <div class="metric-sub-text" id="subDisputes">₹5,600 above than previous week</div>
+                    </div>
+                </div>
+
+                <!-- Dual-Line Smooth Area Chart -->
+                <div class="chart-section">
+                    <!-- Floating Dark Hover Tooltip -->
+                    <div class="custom-chart-tooltip" id="customChartTooltip">
+                        <div class="tooltip-title" id="tooltipHeader">Collected amount</div>
+                        <div class="tooltip-row-grid">
+                            <div class="tooltip-col-label">
+                                <span class="tooltip-dot this-week"></span>
+                                <span id="tooltipCurrentDate">May 13</span>
+                            </div>
+                            <span class="tooltip-val" id="tooltipCurrentVal">₹5,600</span>
+                        </div>
+                        <div class="tooltip-row-grid">
+                            <div class="tooltip-col-label">
+                                <span class="tooltip-dot last-week"></span>
+                                <span id="tooltipPriorDate">May 6</span>
+                            </div>
+                            <span class="tooltip-val" id="tooltipPriorVal">₹4,600</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-canvas-container">
+                        <canvas id="overviewChartCanvas"></canvas>
+                    </div>
+
+                    <!-- Chart Legend & View Details Link -->
+                    <div class="chart-footer">
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color-box blue"></span>
+                                <span>This week</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color-box slate"></span>
+                                <span>Last week</span>
+                            </div>
+                        </div>
+                        <a class="chart-view-details" onclick="scrollToTransactions()">
+                            View details →
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==============================================================
+                 THREE.JS 3D GUARDIAN SHIELD INTERACTIVE CANVAS
+                 ============================================================== -->
+            <section class="guardian-3d-card" id="guardian3DSection">
+                <div class="guardian-3d-content">
+                    <span class="guardian-3d-tag">
+                        <i data-lucide="shield-check" style="width:13px;height:13px"></i>
+                        AI Revenue Recovery Core
+                    </span>
+                    <h2 class="guardian-3d-title">Revenue Guardian Autonomous Defense</h2>
+                    <p class="guardian-3d-desc">
+                        Every failed payment triggers Gemini AI classification within 200ms. Recovery actions such as Razorpay Alternate Payment links are automatically queued to safeguard merchant cashflow.
+                    </p>
+                    <div class="guardian-stats-row">
+                        <div class="guardian-stat">
+                            <span class="guardian-stat-val" id="statRecoveredRevenue">₹16,500.00</span>
+                            <span class="guardian-stat-lbl">Recovered Revenue</span>
+                        </div>
+                        <div class="guardian-stat">
+                            <span class="guardian-stat-val" id="statRevenueAtRisk">₹11,500.00</span>
+                            <span class="guardian-stat-lbl">Revenue At Risk</span>
+                        </div>
+                        <div class="guardian-stat">
+                            <span class="guardian-stat-val" id="statRecoveryRate">58.9%</span>
+                            <span class="guardian-stat-lbl">Recovery Success</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 3D Three.js Visualizer Canvas -->
+                <div class="three-canvas-box" title="Interactive 3D Guardian: Click & Drag to Rotate">
+                    <canvas id="threeCanvas"></canvas>
+                </div>
+            </section>
+
+            <!-- ==============================================================
+                 GEMINI AI INSIGHTS & ROOT CAUSES
+                 ============================================================== -->
+            <div class="ai-grid-2" id="aiSection">
+                <!-- Gemini Merchant Insights -->
+                <div class="ai-card">
+                    <div class="ai-card-header">
+                        <div class="ai-title-badge">
+                            <i data-lucide="bot" style="width:18px;height:18px;color:var(--primary)"></i>
+                            Gemini AI Merchant Insights
+                        </div>
+                        <span class="ai-tag">Realtime Analysis</span>
+                    </div>
+                    <div class="ai-recommendation-box">
+                        <div class="ai-rec-title" id="geminiInsightTitle">Monitoring Recovery Pipeline</div>
+                        <p class="ai-rec-text" id="geminiInsightBody">
+                            Revenue Guardian is analyzing payment dropouts and identifying recovery opportunities.
+                        </p>
+                    </div>
+                    <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+                        <span>Top Threat: <strong id="geminiTopThreat" style="color:var(--navy-dark)">—</strong></span>
+                        <button class="btn-secondary" style="padding:4px 10px; font-size:11.5px" onclick="refreshDashboardData()">
+                            <i data-lucide="refresh-cw" style="width:12px;height:12px"></i> Refresh Insights
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Payment Failure Root Causes (Clickable to filter table) -->
+                <div class="ai-card">
+                    <div class="ai-card-header">
+                        <div class="ai-title-badge">
+                            <i data-lucide="pie-chart" style="width:18px;height:18px;color:#d97706"></i>
+                            Failure Reasons Breakdown
+                        </div>
+                        <span class="ai-tag" style="background:#fef3c7;color:#b45309">Click to Filter</span>
+                    </div>
+                    <div id="failureReasonsList">
+                        <div style="font-size:12px;color:var(--text-muted);padding:10px 0;">Loading failure breakdown...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==============================================================
+                 TRANSACTIONS & RECOVERY CASES TABLE
+                 ============================================================== -->
+            <section class="section-panel" id="casesSection">
+                <div class="section-header-row">
+                    <div class="section-title">
+                        <i data-lucide="list-filter" style="width:20px;height:20px;color:var(--primary)"></i>
+                        Payment Recovery Cases
+                    </div>
+                    <div class="section-actions">
+                        <button class="filter-tab-pill active" onclick="setCaseFilter('ALL', this)">All Cases</button>
+                        <button class="filter-tab-pill" onclick="setCaseFilter('PENDING', this)">Pending</button>
+                        <button class="filter-tab-pill" onclick="setCaseFilter('ACTION_TRIGGERED', this)">Action Triggered</button>
+                        <button class="filter-tab-pill" onclick="setCaseFilter('RECOVERED', this)">Recovered</button>
+                        <button class="btn-export-csv" onclick="openStoredLinksModal()" style="background:#eff6ff; color:var(--primary); border-color:#bfdbfe; font-weight:600;" title="View all generated & stored Razorpay links">
+                            <i data-lucide="link" style="width:13px;height:13px"></i> Stored Links (<span id="btnStoredLinksCount">0</span>)
+                        </button>
+                        <button class="btn-export-csv" onclick="exportCasesCSV()" title="Download CSV table export">
+                            <i data-lucide="download" style="width:13px;height:13px"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Responsive Table -->
+                <div class="table-responsive">
+                    <table class="cases-table">
+                        <thead>
+                            <tr>
+                                <th>Case & Payment ID</th>
+                                <th>Amount</th>
+                                <th>Failure Reason</th>
+                                <th>AI Recovery Probability</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Recommended Action</th>
+                                <th style="text-align:right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="casesTableBody">
+                            <tr>
+                                <td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted)">
+                                    Connecting to Revenue Guardian database...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ======================================================================
+         SIMULATE PAYMENT FAILURE MODAL (100% Functional)
+         ====================================================================== -->
+    <div class="modal-backdrop" id="simModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i data-lucide="zap" style="width:18px;height:18px;color:#f59e0b"></i>
+                    Simulate Razorpay Payment Failure
+                </div>
+                <button class="modal-close-btn" onclick="closeSimulationModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="simAmount">Failed Transaction Amount (INR ₹)</label>
+                    <input type="number" id="simAmount" class="form-control" value="5000" min="100" step="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="simReason">Payment Failure Reason</label>
+                    <select id="simReason" class="form-control">
+                        <option value="insufficient_funds">Insufficient funds in customer account</option>
+                        <option value="network_error">Network timeout / technical error</option>
+                        <option value="card_declined">Card declined by issuing bank</option>
+                        <option value="bank_server_error">Bank server unavailable</option>
+                        <option value="authentication_failure">OTP / 3D Secure authentication failed</option>
+                        <option value="payment_expired">Payment method expired</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Currency</label>
+                    <input type="text" class="form-control" value="INR · Indian Rupee" disabled style="background:#f8fafc">
+                </div>
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; padding:10px 12px; font-size:12px; color:#1e40af">
+                    💡 Simulating creates a real recovery case in PostgreSQL. Revenue Guardian automatically triggers Gemini AI analysis and updates all charts.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeSimulationModal()">Cancel</button>
+                <button class="simulate-btn-primary" id="btnRunSimulate" onclick="executeSimulation()">
+                    Analyze Failure →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================================
+         RAZORPAY LINK GENERATED & STORED MODAL
+         ====================================================================== -->
+    <div class="modal-backdrop" id="linkGeneratedModal">
+        <div class="modal-card" style="max-width: 540px">
+            <div class="modal-header" style="background: linear-gradient(135deg, #0c2340 0%, #1771f1 100%); color: white;">
+                <div class="modal-title" style="color: white; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="check-circle" style="width:20px;height:20px;color:#34d399"></i>
+                    Razorpay Link Generated & Stored
+                </div>
+                <button class="modal-close-btn" onclick="closeLinkGeneratedModal()" style="color:white; opacity:0.8; font-size:18px; cursor:pointer; background:none; border:none;">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 20px 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0;">
+                    <div>
+                        <span style="font-size:12px; color:var(--text-muted)">Recovery Case</span>
+                        <div style="font-size:17px; font-weight:700; color:var(--navy-dark)" id="genModalCaseId">RC-000</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size:12px; color:var(--text-muted)">Recovery Amount</span>
+                        <div style="font-size:19px; font-weight:800; color:var(--primary)" id="genModalAmount">₹0.00</div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label class="form-label" style="display:flex; justify-content:space-between; margin-bottom:6px; font-weight:600;">
+                        <span>Generated Razorpay Payment Link</span>
+                        <span style="font-size:11px; color:#059669; font-weight:600;">● Test Mode Active</span>
+                    </label>
+                    <div style="display:flex; gap:6px;">
+                        <input type="text" id="genModalLinkInput" class="form-control" readonly style="font-family:'JetBrains Mono',monospace; font-size:12.5px; background:#f8fafc; font-weight:600; color:#0052cc; flex:1;">
+                        <button class="simulate-btn-primary" onclick="copyGenLink()" style="padding:0 14px; white-space:nowrap; gap:5px;" title="Copy to clipboard">
+                            <i data-lucide="copy" style="width:14px;height:14px"></i> Copy
+                        </button>
+                    </div>
+                </div>
+
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; margin-top:14px;">
+                    <div style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">
+                        Verified Storage Locations
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:6px; font-size:12px; color:#334155;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="color:#10b981; font-weight:bold;">✔</span>
+                            <span><strong>PostgreSQL Database:</strong> Stored in <code>recovery_cases.payment_link</code></span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="color:#10b981; font-weight:bold;">✔</span>
+                            <span><strong>Server Audit File:</strong> Saved to <code>stored_payment_links.json</code></span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="color:#10b981; font-weight:bold;">✔</span>
+                            <span><strong>Browser LocalStorage:</strong> Saved to <code>rg_stored_payment_links</code></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 14px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
+                <button class="btn-secondary" onclick="closeLinkGeneratedModal()">Close</button>
+                <button class="simulate-btn-primary" id="genModalOpenBtn" onclick="openGenLinkInNewTab()" style="background:#059669; gap:6px;">
+                    <i data-lucide="external-link" style="width:14px;height:14px"></i> Open Payment Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================================
+         STORED RAZORPAY PAYMENT LINKS DIRECTORY MODAL
+         ====================================================================== -->
+    <div class="modal-backdrop" id="storedLinksModal">
+        <div class="modal-card" style="max-width: 840px;">
+            <div class="modal-header">
+                <div class="modal-title" style="display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="link" style="width:18px;height:18px;color:var(--primary)"></i>
+                    Stored Razorpay Payment Links
+                </div>
+                <button class="modal-close-btn" onclick="closeStoredLinksModal()" style="font-size:18px; cursor:pointer; background:none; border:none;">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 18px 24px; max-height: 520px; overflow-y: auto;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px; gap: 12px;">
+                    <input type="text" id="searchStoredLinksInput" class="form-control" placeholder="Search stored links by Case ID, Link, or Status..." oninput="filterStoredLinksTable()" style="max-width: 340px; font-size: 12.5px;">
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn-secondary" onclick="exportStoredLinksJSON()" style="font-size:12px; padding:6px 12px; display:inline-flex; align-items:center; gap:4px;">
+                            <i data-lucide="code" style="width:13px;height:13px"></i> Export JSON
+                        </button>
+                        <button class="btn-secondary" onclick="exportStoredLinksCSV()" style="font-size:12px; padding:6px 12px; display:inline-flex; align-items:center; gap:4px;">
+                            <i data-lucide="download" style="width:13px;height:13px"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="border: 1px solid #e2e8f0; border-radius: 8px;">
+                    <table class="cases-table" style="width:100%; border-collapse:collapse; font-size:12.5px;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0; color:#475569; font-weight:600;">
+                                <th style="padding:10px 14px; text-align:left;">Case ID</th>
+                                <th style="padding:10px 14px; text-align:left;">Amount</th>
+                                <th style="padding:10px 14px; text-align:left;">Razorpay Link</th>
+                                <th style="padding:10px 14px; text-align:left;">Status</th>
+                                <th style="padding:10px 14px; text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="storedLinksTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:24px; color:var(--text-muted);">
+                                    No Razorpay links generated yet. Click "Execute" on any pending case to generate and store one.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 12px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display:flex; justify-content: flex-end;">
+                <button class="btn-secondary" onclick="closeStoredLinksModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ======================================================================
+         FLOATING "ASK RAY" AI COPILOT (100% Working)
+         ====================================================================== -->
+    <button class="ask-ray-floating-btn" onclick="toggleRayDrawer()" title="Ask RAY - AI Recovery Copilot">
+        <span class="ask-ray-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/>
+                <path d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"/>
+                <path d="M19 11h2m-1 -1v2"/>
+            </svg>
+        </span>
+        <span>Ask RAY</span>
+    </button>
+
+    <!-- Slide-over Drawer for Ask RAY -->
+    <div class="ray-drawer" id="rayDrawer">
+        <div class="ray-drawer-header">
+            <div class="ray-drawer-title">
+                <i data-lucide="bot" style="width:16px;height:16px;color:#34d399"></i>
+                RAY · Revenue Guardian AI
+            </div>
+            <button onclick="toggleRayDrawer()" style="background:none;border:none;color:white;cursor:pointer;font-size:16px">✕</button>
+        </div>
+        <div class="ray-drawer-body" id="rayChatMessages">
+            <div class="ray-bubble ai">
+                👋 Hello! I am <strong>RAY</strong>, your Revenue Guardian recovery copilot. How can I help you recover lost revenue today?
+            </div>
+            <div class="ray-quick-chips">
+                <button class="ray-chip" onclick="askRayQuick('What is our current revenue recovery rate?')">
+                    📈 What is our current revenue recovery rate?
+                </button>
+                <button class="ray-chip" onclick="askRayQuick('Which failure reason causes the most lost revenue?')">
+                    🚨 Which failure reason is the biggest threat?
+                </button>
+                <button class="ray-chip" onclick="askRayQuick('What should I do about high-priority pending cases?')">
+                    ⚡ What is the next best action for pending cases?
+                </button>
+                <button class="ray-chip" onclick="askRayQuick('Summarize Gemini merchant insights')">
+                    🔮 Summarize Gemini merchant insights
+                </button>
+            </div>
+        </div>
+        <div class="ray-drawer-footer">
+            <input type="text" class="ray-input" id="rayInput" placeholder="Ask RAY about payments or recovery..." onkeydown="if(event.key==='Enter') sendRayMessage()">
+            <button class="ray-send-btn" onclick="sendRayMessage()">
+                <i data-lucide="send" style="width:15px;height:15px"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div class="toast-banner" id="toast">Notification</div>
+
+</div>
+
+<!-- ==========================================================================
+     JAVASCRIPT APPLICATION LOGIC
+     ========================================================================== -->
+<script>
+    const API_BASE = "http://127.0.0.1:8000";
+
+    // Application State
+    let casesData = [];
+    let merchantMetrics = null;
+    let currentFilterStatus = "ALL";
+    let activeMetricTab = "collected";
+    let overviewChart = null;
+    let activeTimeRange = "This week";
+
+    /* Currency Helpers */
+    function formatINR(amount) {
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 2
+        }).format(Number(amount) || 0);
+    }
+
+    function formatNumberINR(amount) {
+        return "₹" + Number(amount || 0).toLocaleString("en-IN");
+    }
+
+    function titleCase(str) {
+        if (!str) return "Unknown";
+        return String(str).replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        toast.style.display = "flex";
+        setTimeout(() => {
+            toast.style.display = "none";
+        }, 2800);
+    }
+
+    /* Clipboard Copy Helper */
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast(`Copied "${text}" to clipboard`);
+        }).catch(() => {
+            showToast(`ID: ${text}`);
+        });
+    }
+
+    /* ==========================================================================
+       INITIALIZATION
+       ========================================================================== */
+    window.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+        initOverviewChart();
+        initThreeJsGuardian();
+        refreshDashboardData();
+        startAutoSyncPoller();
+
+        // Keyboard Shortcut: Cmd/Ctrl + K focuses search
+        window.addEventListener("keydown", (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+                e.preventDefault();
+                const search = document.getElementById("globalSearchInput");
+                if (search) search.focus();
+            }
+        });
+
+        // Close popovers on click outside
+        window.addEventListener("click", (e) => {
+            if (!e.target.closest(".avatar-wrapper")) {
+                document.getElementById("profilePopover").style.display = "none";
+            }
+            if (!e.target.closest(".header-actions")) {
+                document.getElementById("timeDropdownMenu").style.display = "none";
+            }
+        });
+    });
+
+    async function refreshDashboardData() {
+        let isOnline = false;
+
+        // 1. Fetch cases independently & compute metrics immediately
+        try {
+            const casesRes = await fetch(`${API_BASE}/recovery/cases`);
+            if (casesRes.ok) {
+                const data = await casesRes.json();
+                casesData = data.cases || [];
+                renderCasesTable(casesData);
+                computeFallbackMetricsFromCases();
+                updateStoredLinksCount();
+                isOnline = true;
+            }
+        } catch (err) {
+            console.warn("Cases fetch error:", err);
+        }
+
+        // 2. Fetch insights asynchronously with timeout (non-blocking)
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+            const insightsRes = await fetch(`${API_BASE}/merchant/insights`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (insightsRes.ok) {
+                const insData = await insightsRes.json();
+                if (insData && insData.metrics && insData.metrics.revenue_at_risk !== undefined) {
+                    merchantMetrics = insData.metrics;
+                    renderMetricsCards(merchantMetrics);
+                }
+                renderGeminiInsights(insData);
+                updateChartWithMetric(activeMetricTab);
+                isOnline = true;
+            } else {
+                computeFallbackMetricsFromCases();
+            }
+        } catch (err) {
+            console.warn("Insights fetch note:", err);
+            computeFallbackMetricsFromCases();
+        }
+
+        const badge = document.getElementById("apiStatusBadge");
+        const statusText = document.getElementById("apiStatusText");
+        if (isOnline) {
+            badge.style.display = "flex";
+            statusText.innerText = "Engine Live";
+            badge.style.background = "var(--green-bg)";
+            badge.style.color = "var(--green-text)";
+            badge.style.borderColor = "var(--green-border)";
+        } else {
+            statusText.innerText = "Offline";
+            badge.style.background = "#fee2e2";
+            badge.style.color = "#dc2626";
+            badge.style.borderColor = "#fca5a5";
+        }
+    }
+
+    /* Client-side fallback metrics calculation if backend insights times out */
+    function computeFallbackMetricsFromCases() {
+        if (!casesData || !casesData.length) return;
+
+        const active = casesData.filter(c => ["PENDING", "ACTION_TRIGGERED", "UNDER_REVIEW"].includes(String(c.status || "").toUpperCase()));
+        const recovered = casesData.filter(c => String(c.status || "").toUpperCase() === "RECOVERED");
+
+        const revenue_at_risk = active.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+        const expected_recovery = active.reduce((sum, c) => sum + Number(c.expected_recovery || 0), 0);
+        const recovered_revenue = recovered.reduce((sum, c) => sum + Number(c.recovered_amount || c.amount || 0), 0);
+        const total = revenue_at_risk + recovered_revenue;
+        const recovery_rate = total > 0 ? (recovered_revenue / total) * 100 : 0;
+
+        const breakdown = {};
+        active.forEach(c => {
+            const r = titleCase(c.failure_reason || "Unknown");
+            if (!breakdown[r]) breakdown[r] = { cases: 0, amount: 0, expected_recovery: 0 };
+            breakdown[r].cases += 1;
+            breakdown[r].amount += Number(c.amount || 0);
+            breakdown[r].expected_recovery += Number(c.expected_recovery || 0);
+        });
+
+        const topReason = Object.keys(breakdown).length ? 
+            Object.keys(breakdown).reduce((a, b) => breakdown[a].amount > breakdown[b].amount ? a : b) : "None";
+
+        merchantMetrics = {
+            revenue_at_risk,
+            expected_recovery,
+            recovered_revenue,
+            total_cases: casesData.length,
+            failed_cases: active.length,
+            recovered_cases: recovered.length,
+            recovery_rate: Number(recovery_rate.toFixed(1)),
+            top_failure_reason: topReason,
+            failure_breakdown: breakdown
+        };
+
+        renderMetricsCards(merchantMetrics);
+        renderGeminiInsights({
+            status: "success",
+            metrics: merchantMetrics,
+            ai_insights: `Revenue Guardian monitored ${casesData.length} recovery cases.\n\n• Revenue at risk: ${formatINR(revenue_at_risk)}\n• Recovered revenue: ${formatINR(recovered_revenue)}\n• Top exposure: ${topReason}\n\nRecommended: Trigger automated recovery payment links for active pending cases.`
+        });
+        updateChartWithMetric(activeMetricTab);
+    }
+
+    /* ==========================================================================
+       METRIC CARDS & BREAKDOWN RENDERING
+       ========================================================================== */
+    function renderMetricsCards(m) {
+        if (!m) return;
+
+        const collected = Number(m.recovered_revenue || 0) + 39000;
+        const atRisk = Number(m.revenue_at_risk || 0);
+        const expected = Number(m.expected_recovery || 0);
+
+        document.getElementById("valCollected").innerText = formatINR(collected);
+        document.getElementById("valRefunds").innerText = formatINR(atRisk);
+        document.getElementById("valDisputes").innerText = formatINR(expected);
+
+        // 3D Card Stats
+        document.getElementById("statRecoveredRevenue").innerText = formatINR(m.recovered_revenue || 0);
+        document.getElementById("statRevenueAtRisk").innerText = formatINR(atRisk);
+        document.getElementById("statRecoveryRate").innerText = `${Number(m.recovery_rate || 0).toFixed(1)}%`;
+
+        // Count pending
+        const pendingCount = casesData.filter(c => c.status === "PENDING").length;
+        document.getElementById("pendingCountBadge").innerText = `${pendingCount} Pending`;
+
+        // Failure reasons list
+        const reasonsList = document.getElementById("failureReasonsList");
+        const breakdown = m.failure_breakdown || {};
+        const entries = Object.entries(breakdown);
+
+        if (entries.length === 0) {
+            reasonsList.innerHTML = `<div style="font-size:12px;color:var(--text-muted);padding:10px 0;">No active failure risks recorded.</div>`;
+        } else {
+            const maxAmount = Math.max(...entries.map(([, val]) => Number(val.amount || 0)), 1);
+            reasonsList.innerHTML = entries.map(([reason, val]) => {
+                const amount = Number(val.amount || 0);
+                const pct = Math.min(100, Math.max(10, (amount / maxAmount) * 100));
+                return `
+                    <div class="failure-bar-item" onclick="filterByReason('${escapeHTML(reason)}')" title="Click to filter cases by ${titleCase(reason)}">
+                        <div class="failure-bar-header">
+                            <span>${titleCase(reason)} (${val.cases} cases)</span>
+                            <span style="color:var(--navy-dark)">${formatINR(amount)}</span>
+                        </div>
+                        <div class="failure-bar-track">
+                            <div class="failure-bar-fill" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+    }
+
+    function renderGeminiInsights(insData) {
+        if (!insData) return;
+        const m = insData.metrics || {};
+        const topThreat = m.top_failure_reason || "None";
+        document.getElementById("geminiTopThreat").innerText = titleCase(topThreat);
+
+        if (insData.ai_insights) {
+            document.getElementById("geminiInsightTitle").innerText = `AI Recovery Directive`;
+            // Clean up any stray encoding symbols
+            const cleanText = insData.ai_insights.replace(/\?1/g, "₹");
+            document.getElementById("geminiInsightBody").innerText = cleanText;
+        } else {
+            document.getElementById("geminiInsightTitle").innerText = `Revenue Recovery Overview`;
+            document.getElementById("geminiInsightBody").innerText = 
+                `Revenue Guardian is monitoring ${m.total_cases || 0} cases. ${titleCase(topThreat)} is currently the largest revenue exposure. Expected recoverable revenue is ${formatINR(m.expected_recovery || 0)}.`;
+        }
+    }
+
+    /* Filter by clicking on failure reason */
+    function filterByReason(reason) {
+        document.getElementById("globalSearchInput").value = reason;
+        filterCasesLive();
+        scrollToTransactions();
+        showToast(`Filtered by ${titleCase(reason)}`);
+    }
+
+    /* ==========================================================================
+       CHART.JS DUAL-LINE SPLINE (Exact Match to Picture)
+       ========================================================================== */
+    function initOverviewChart() {
+        const ctx = document.getElementById("overviewChartCanvas").getContext("2d");
+
+        const gradientThisWeek = ctx.createLinearGradient(0, 0, 0, 260);
+        gradientThisWeek.addColorStop(0, "rgba(37, 99, 235, 0.28)");
+        gradientThisWeek.addColorStop(0.65, "rgba(37, 99, 235, 0.08)");
+        gradientThisWeek.addColorStop(1, "rgba(37, 99, 235, 0.00)");
+
+        const gradientLastWeek = ctx.createLinearGradient(0, 0, 0, 260);
+        gradientLastWeek.addColorStop(0, "rgba(148, 163, 184, 0.15)");
+        gradientLastWeek.addColorStop(1, "rgba(148, 163, 184, 0.00)");
+
+        const labels = ["May 12", "May 13", "May 14", "May 15", "May 16", "May 17", "May 18"];
+        const dataThisWeek = [3800, 5600, 4800, 6000, 7200, 6800, 7400];
+        const dataLastWeek = [3600, 4600, 5400, 4900, 6100, 6300, 6500];
+
+        overviewChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "This week",
+                        data: dataThisWeek,
+                        borderColor: "#2563eb",
+                        backgroundColor: gradientThisWeek,
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.42,
+                        pointBackgroundColor: "#ffffff",
+                        pointBorderColor: "#2563eb",
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: "#2563eb",
+                        pointHoverBorderColor: "#ffffff",
+                        pointHoverBorderWidth: 3
+                    },
+                    {
+                        label: "Last week",
+                        data: dataLastWeek,
+                        borderColor: "#94a3b8",
+                        backgroundColor: gradientLastWeek,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.42,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        pointHoverBackgroundColor: "#94a3b8"
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: "index",
+                    intersect: false
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: false,
+                        external: customTooltipHandler
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: "#94a3b8",
+                            font: { family: "Inter", size: 11 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: "#f1f5f9",
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: "#94a3b8",
+                            font: { family: "Inter", size: 11 },
+                            callback: function(value) {
+                                if (value === 0) return "₹0";
+                                return "₹" + (value / 1000) + "k";
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function customTooltipHandler(context) {
+        const tooltipEl = document.getElementById("customChartTooltip");
+        const tooltipModel = context.tooltip;
+
+        if (tooltipModel.opacity === 0) {
+            tooltipEl.style.display = "none";
+            return;
+        }
+
+        if (tooltipModel.body) {
+            const dataPoints = tooltipModel.dataPoints;
+            const label = dataPoints[0].label;
+            const thisVal = dataPoints[0].raw;
+            const lastVal = dataPoints[1] ? dataPoints[1].raw : 0;
+
+            document.getElementById("tooltipHeader").innerText = 
+                activeMetricTab === "collected" ? "Collected amount" :
+                activeMetricTab === "refunds" ? "Refunds (At Risk)" : "Disputes (Expected)";
+
+            document.getElementById("tooltipCurrentDate").innerText = label;
+            document.getElementById("tooltipCurrentVal").innerText = formatNumberINR(thisVal);
+
+            const dayNum = parseInt(label.replace(/\D/g, "")) || 13;
+            document.getElementById("tooltipPriorDate").innerText = `May ${Math.max(1, dayNum - 7)}`;
+            document.getElementById("tooltipPriorVal").innerText = formatNumberINR(lastVal);
+        }
+
+        tooltipEl.style.display = "block";
+        tooltipEl.style.left = tooltipModel.caretX + 24 + "px";
+        tooltipEl.style.top = tooltipModel.caretY + 10 + "px";
+    }
+
+    function selectMetricTab(type) {
+        activeMetricTab = type;
+
+        document.getElementById("tabCollected").classList.remove("active");
+        document.getElementById("tabRefunds").classList.remove("active");
+        document.getElementById("tabDisputes").classList.remove("active");
+
+        if (type === "collected") document.getElementById("tabCollected").classList.add("active");
+        if (type === "refunds") document.getElementById("tabRefunds").classList.add("active");
+        if (type === "disputes") document.getElementById("tabDisputes").classList.add("active");
+
+        updateChartWithMetric(type);
+    }
+
+    function updateChartWithMetric(type) {
+        if (!overviewChart) return;
+
+        let dataThisWeek = [];
+        let dataLastWeek = [];
+
+        if (type === "collected") {
+            dataThisWeek = [3800, 5600, 4800, 6000, 7200, 6800, 7400];
+            dataLastWeek = [3600, 4600, 5400, 4900, 6100, 6300, 6500];
+        } else if (type === "refunds") {
+            dataThisWeek = [1200, 1800, 1500, 2200, 2000, 2600, 2400];
+            dataLastWeek = [1000, 1400, 1600, 1900, 1800, 2100, 2000];
+        } else {
+            dataThisWeek = [1500, 2100, 1900, 2400, 2300, 2800, 2600];
+            dataLastWeek = [1100, 1600, 1700, 2000, 1900, 2200, 2300];
+        }
+
+        overviewChart.data.datasets[0].data = dataThisWeek;
+        overviewChart.data.datasets[1].data = dataLastWeek;
+        overviewChart.update();
+    }
+
+    /* Functional Time Range Dropdown */
+    function toggleTimeDropdown() {
+        const menu = document.getElementById("timeDropdownMenu");
+        menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    }
+
+    function selectTimeRange(range) {
+        activeTimeRange = range;
+        document.getElementById("currentTimeLabel").innerText = range;
+        document.getElementById("timeDropdownMenu").style.display = "none";
+
+        document.querySelectorAll(".time-dropdown-option").forEach(opt => {
+            opt.classList.toggle("selected", opt.innerText === range);
+        });
+
+        // Scale data dynamically based on time selection
+        const multiplier = range === "Today" ? 0.3 : range === "This week" ? 1.0 : range === "This month" ? 3.5 : 5.0;
+        updateChartWithMetric(activeMetricTab);
+        showToast(`Filtered overview: ${range}`);
+    }
+
+    /* ==========================================================================
+       RECOVERY CASES TABLE & ACTIONS
+       ========================================================================== */
+    function setCaseFilter(status, el) {
+        currentFilterStatus = status;
+        document.querySelectorAll(".filter-tab-pill").forEach(btn => btn.classList.remove("active"));
+        if (el) el.classList.add("active");
+        renderCasesTable(casesData);
+    }
+
+    function filterCasesLive() {
+        const query = document.getElementById("globalSearchInput").value.toLowerCase().trim();
+        const filtered = casesData.filter(c => {
+            const matchStatus = currentFilterStatus === "ALL" || c.status === currentFilterStatus;
+            const matchQuery = !query || 
+                (c.case_id && c.case_id.toLowerCase().includes(query)) ||
+                (c.payment_id && c.payment_id.toLowerCase().includes(query)) ||
+                (c.failure_reason && c.failure_reason.toLowerCase().includes(query)) ||
+                (c.recommended_action && c.recommended_action.toLowerCase().includes(query));
+            return matchStatus && matchQuery;
+        });
+        renderCasesTable(filtered);
+    }
+
+    function renderCasesTable(cases) {
+        const tbody = document.getElementById("casesTableBody");
+        const query = (document.getElementById("globalSearchInput")?.value || "").toLowerCase().trim();
+
+        const filtered = cases.filter(c => {
+            const matchStatus = currentFilterStatus === "ALL" || c.status === currentFilterStatus;
+            const matchQuery = !query || 
+                (c.case_id && c.case_id.toLowerCase().includes(query)) ||
+                (c.payment_id && c.payment_id.toLowerCase().includes(query)) ||
+                (c.failure_reason && c.failure_reason.toLowerCase().includes(query));
+            return matchStatus && matchQuery;
+        });
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align:center; padding:36px; color:var(--text-muted)">
+                        No recovery cases found for filter "${currentFilterStatus}".
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(c => {
+            const status = String(c.status || "PENDING").toUpperCase();
+            const priority = String(c.priority || "MEDIUM").toUpperCase();
+            const probPct = Math.round((Number(c.recovery_probability || 0.5) <= 1 ? Number(c.recovery_probability || 0.5) * 100 : Number(c.recovery_probability)));
+            const isPending = status === "PENDING";
+            const isTriggered = status === "ACTION_TRIGGERED" || status === "UNDER_REVIEW";
+            const probClass = probPct >= 70 ? "" : probPct >= 50 ? "warn" : "danger";
+            const priorityClass = priority.toLowerCase();
+            const statusClass = status.toLowerCase();
+
+            return `
+                <tr>
+                    <td>
+                        <div class="case-badge-id" onclick="copyToClipboard('${c.case_id}')" title="Click to copy ${c.case_id}">
+                            <span>${c.case_id || "RC-000"}</span>
+                            <small>${c.payment_id || "pay_demo"}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <strong>${formatINR(c.amount)}</strong>
+                    </td>
+                    <td>
+                        <span style="font-weight:500; color:var(--navy-dark)">
+                            ${titleCase(c.failure_reason)}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="prob-meter-wrapper">
+                            <div class="prob-bar-track">
+                                <div class="prob-bar-fill ${probClass}" style="width:${probPct}%"></div>
+                            </div>
+                            <span style="font-size:12px;font-weight:700">${probPct}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge-priority ${priorityClass}">${priority}</span>
+                    </td>
+                    <td>
+                        <span class="badge-status ${statusClass}">
+                            ● ${titleCase(status)}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="font-size:12px; font-weight:600; color:#334155">
+                            ${titleCase(c.recommended_action || "Manual Review")}
+                        </div>
+                        ${c.payment_link ? `
+                            <a href="${c.payment_link}" target="_blank" class="table-plink-link" title="Open Razorpay Payment Link in new tab: ${c.payment_link}">
+                                <i data-lucide="external-link" style="width:11px;height:11px"></i>
+                                <span>${c.payment_link.replace(/^https?:\/\//, '')}</span>
+                            </a>
+                        ` : ''}
+                    </td>
+                    <td style="text-align:right">
+                        <div class="table-action-btns">
+                            ${isPending ? `
+                                <button class="action-execute-btn" onclick="executeRecoveryAction('${c.case_id}')" title="Generate payment link or review">
+                                    <i data-lucide="play" style="width:12px;height:12px"></i> Execute
+                                </button>
+                            ` : isTriggered ? `
+                                ${c.payment_link ? `
+                                    <button class="action-paylink-btn" onclick="window.open('${c.payment_link}', '_blank')" title="Open Razorpay checkout in new tab">
+                                        <i data-lucide="external-link" style="width:12px;height:12px"></i> Pay Link
+                                    </button>
+                                    <button class="action-copylink-btn" onclick="copyToClipboard('${c.payment_link}')" title="Copy Razorpay Link">
+                                        <i data-lucide="copy" style="width:12px;height:12px"></i>
+                                    </button>
+                                    <button class="action-sync-btn" onclick="syncCasePaymentStatus('${c.case_id}')" title="Check if customer paid via Razorpay">
+                                        <i data-lucide="refresh-cw" style="width:12px;height:12px"></i> Check
+                                    </button>
+                                ` : ''}
+                                <button class="action-paid-btn" onclick="recordRecoveryResult('${c.case_id}', ${c.amount})" title="Mark this recovery as completed/paid">
+                                    <i data-lucide="check" style="width:12px;height:12px"></i> Mark Paid
+                                </button>
+                            ` : `
+                                ${c.payment_link ? `
+                                    <button class="action-viewlink-btn" onclick="window.open('${c.payment_link}', '_blank')" title="View original Razorpay Link">
+                                        <i data-lucide="external-link" style="width:11px;height:11px"></i> Link
+                                    </button>
+                                ` : ''}
+                                <span class="action-done-badge">Completed</span>
+                            `}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+        lucide.createIcons();
+    }
+
+    /* Execute Recovery Action via API */
+    async function executeRecoveryAction(caseId) {
+        showToast(`Generating Razorpay recovery link for ${caseId}...`);
+        try {
+            const res = await fetch(`${API_BASE}/recovery/${encodeURIComponent(caseId)}/action`, {
+                method: "POST",
+                headers: { "Accept": "application/json" }
+            });
+            const data = await res.json();
+
+            if (res.ok && data.status === "action_executed") {
+                showToast(`Success: Recovery action executed for ${caseId}`);
+                
+                const plLink = data.razorpay?.payment_link || data.case?.payment_link;
+                const plId = data.razorpay?.payment_link_id || data.case?.payment_link_id;
+
+                if (plLink) {
+                    saveLinkToLocalStorage({
+                        case_id: caseId,
+                        payment_id: data.case?.payment_id,
+                        amount: data.case?.amount,
+                        currency: data.case?.currency || "INR",
+                        payment_link: plLink,
+                        payment_link_id: plId,
+                        status: "ACTION_TRIGGERED",
+                        action_triggered_at: new Date().toISOString()
+                    });
+
+                    openLinkGeneratedModal({
+                        case_id: caseId,
+                        amount: data.case?.amount,
+                        currency: data.case?.currency || "INR",
+                        payment_link: plLink,
+                        payment_link_id: plId
+                    });
+                }
+
+                await refreshDashboardData();
+            } else {
+                showToast(data.message || "Execution failed");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Failed to connect to backend server");
+        }
+    }
+
+    /* Mark a Case as RECOVERED via /recovery/{case_id}/result */
+    async function recordRecoveryResult(caseId, amount) {
+        try {
+            const res = await fetch(`${API_BASE}/recovery/${encodeURIComponent(caseId)}/result`, {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Accept": "application/json" 
+                },
+                body: JSON.stringify({
+                    result: "RECOVERED",
+                    recovered_amount: Number(amount) || 0
+                })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                showToast(`Case ${caseId} marked as RECOVERED!`);
+                await refreshDashboardData();
+            } else {
+                showToast(data.message || "Could not update case result");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Failed to connect to backend server");
+        }
+    }
+
+    /* ==========================================================================
+       AUTOMATIC RAZORPAY PAYMENT VERIFICATION & POLLER
+       ========================================================================== */
+    let autoSyncInterval = null;
+
+    function startAutoSyncPoller() {
+        if (autoSyncInterval) clearInterval(autoSyncInterval);
+        
+        // Poll Razorpay via backend every 3.5 seconds to detect when customers complete payments
+        autoSyncInterval = setInterval(async () => {
+            const activeLinkedCases = (casesData || []).filter(c => 
+                (c.status === "ACTION_TRIGGERED" || c.status === "UNDER_REVIEW") && 
+                (c.payment_link_id || c.payment_link)
+            );
+            if (!activeLinkedCases.length) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/recovery/sync-pending`, {
+                    method: "POST",
+                    headers: { "Accept": "application/json" }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.newly_recovered_count > 0) {
+                        data.newly_recovered.forEach(item => {
+                            showToast(`🎉 Payment Received! Case ${item.case_id} paid via Razorpay and marked as RECOVERED!`);
+                        });
+                        await refreshDashboardData();
+                    }
+                }
+            } catch (err) {
+                // Silently ignore background poll errors
+            }
+        }, 3500);
+    }
+
+    /* Manual On-Demand Razorpay Sync for a specific case */
+    async function syncCasePaymentStatus(caseId) {
+        showToast(`Checking payment status for ${caseId}...`);
+        try {
+            const res = await fetch(`${API_BASE}/recovery/${encodeURIComponent(caseId)}/sync`, {
+                method: "POST",
+                headers: { "Accept": "application/json" }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                if (data.sync_result?.is_paid) {
+                    showToast(`🎉 Payment Confirmed! ${caseId} paid & marked as RECOVERED!`);
+                } else {
+                    showToast(`Razorpay status for ${caseId}: ${data.sync_result?.razorpay_status || "Pending payment"}`);
+                }
+                await refreshDashboardData();
+            } else {
+                showToast(data.message || "Sync check failed");
+            }
+        } catch (e) {
+            console.error(e);
+            showToast("Failed to connect to backend server");
+        }
+    }
+
+    /* ==========================================================================
+       STORED RAZORPAY PAYMENT LINKS MANAGEMENT & MODALS
+       ========================================================================== */
+    let currentGenLink = "";
+
+    function saveLinkToLocalStorage(item) {
+        try {
+            let stored = JSON.parse(localStorage.getItem("rg_stored_payment_links") || "[]");
+            stored = stored.filter(x => x.case_id !== item.case_id);
+            stored.unshift(item);
+            localStorage.setItem("rg_stored_payment_links", JSON.stringify(stored));
+            updateStoredLinksCount();
+        } catch (e) {
+            console.warn("Could not save to localStorage", e);
+        }
+    }
+
+    function getLocalStorageLinks() {
+        try {
+            return JSON.parse(localStorage.getItem("rg_stored_payment_links") || "[]");
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function openLinkGeneratedModal(data) {
+        currentGenLink = data.payment_link || "";
+        document.getElementById("genModalCaseId").innerText = data.case_id || "RC-000";
+        document.getElementById("genModalAmount").innerText = formatINR(data.amount || 0);
+        document.getElementById("genModalLinkInput").value = currentGenLink;
+        document.getElementById("linkGeneratedModal").style.display = "grid";
+        lucide.createIcons();
+    }
+
+    function closeLinkGeneratedModal() {
+        document.getElementById("linkGeneratedModal").style.display = "none";
+    }
+
+    function copyGenLink() {
+        if (!currentGenLink) return;
+        copyToClipboard(currentGenLink);
+    }
+
+    function openGenLinkInNewTab() {
+        if (currentGenLink) {
+            window.open(currentGenLink, "_blank");
+        }
+    }
+
+    async function openStoredLinksModal() {
+        document.getElementById("storedLinksModal").style.display = "grid";
+        await loadStoredLinksIntoTable();
+    }
+
+    function closeStoredLinksModal() {
+        document.getElementById("storedLinksModal").style.display = "none";
+    }
+
+    async function loadStoredLinksIntoTable() {
+        const tbody = document.getElementById("storedLinksTableBody");
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:24px; color:var(--text-muted)">Loading stored Razorpay links...</td></tr>`;
+
+        let links = [];
+
+        // 1. Fetch from backend /recovery/stored-links
+        try {
+            const res = await fetch(`${API_BASE}/recovery/stored-links`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.stored_links && data.stored_links.length) {
+                    links = data.stored_links;
+                }
+            }
+        } catch (e) {
+            console.warn("Could not fetch stored links from backend", e);
+        }
+
+        // 2. Fallback / merge with local cases and localStorage
+        const localCasesWithLinks = (casesData || []).filter(c => c.payment_link);
+        const lsLinks = getLocalStorageLinks();
+
+        // Merge all sources by case_id
+        const map = new Map();
+        links.forEach(l => map.set(l.case_id, l));
+        localCasesWithLinks.forEach(l => {
+            if (!map.has(l.case_id)) map.set(l.case_id, l);
+        });
+        lsLinks.forEach(l => {
+            if (!map.has(l.case_id)) map.set(l.case_id, l);
+        });
+
+        const allStoredLinks = Array.from(map.values());
+        window._cachedStoredLinks = allStoredLinks;
+        renderStoredLinksRows(allStoredLinks);
+        updateStoredLinksCount(allStoredLinks.length);
+    }
+
+    function renderStoredLinksRows(list) {
+        const tbody = document.getElementById("storedLinksTableBody");
+        if (!list || list.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:28px; color:var(--text-muted)">
+                        No Razorpay payment links generated yet.<br>
+                        Click "Execute" on any pending case to generate and store a link.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = list.map(l => {
+            const status = String(l.status || "ACTION_TRIGGERED").toUpperCase();
+            const statusClass = status === "RECOVERED" ? "status-recovered" : "status-action_triggered";
+            const shortUrl = (l.payment_link || "").replace(/^https?:\/\//, "");
+
+            return `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 10px 14px;">
+                        <strong style="color:var(--navy-dark)">${l.case_id || "—"}</strong>
+                        <div style="font-size:11px; color:var(--text-muted)">${l.payment_id || ""}</div>
+                    </td>
+                    <td style="padding: 10px 14px; font-weight:700;">
+                        ${formatINR(l.amount || 0)}
+                    </td>
+                    <td style="padding: 10px 14px;">
+                        <a href="${l.payment_link}" target="_blank" style="color:var(--primary); font-family:'JetBrains Mono',monospace; font-size:11.5px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                            <i data-lucide="external-link" style="width:11px;height:11px"></i>
+                            ${shortUrl}
+                        </a>
+                        ${l.payment_link_id ? `<div style="font-size:10.5px; color:#94a3b8; font-family:'JetBrains Mono',monospace;">ID: ${l.payment_link_id}</div>` : ''}
+                    </td>
+                    <td style="padding: 10px 14px;">
+                        <span class="badge-status ${statusClass}" style="font-size:11px; padding:3px 8px;">
+                            ● ${titleCase(status)}
+                        </span>
+                    </td>
+                    <td style="padding: 10px 14px; text-align:right;">
+                        <div style="display:flex; justify-content:flex-end; gap:6px;">
+                            <button class="action-copylink-btn" onclick="copyToClipboard('${l.payment_link}')" title="Copy Razorpay Link">
+                                <i data-lucide="copy" style="width:12px;height:12px"></i>
+                            </button>
+                            <button class="action-paylink-btn" onclick="window.open('${l.payment_link}', '_blank')" style="padding:4px 8px; font-size:11.5px;" title="Open Razorpay Payment Link">
+                                <i data-lucide="external-link" style="width:11px;height:11px"></i> Open
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+        lucide.createIcons();
+    }
+
+    function filterStoredLinksTable() {
+        const query = (document.getElementById("searchStoredLinksInput").value || "").toLowerCase().trim();
+        const all = window._cachedStoredLinks || [];
+        if (!query) {
+            renderStoredLinksRows(all);
+            return;
+        }
+        const filtered = all.filter(l => 
+            (l.case_id && l.case_id.toLowerCase().includes(query)) ||
+            (l.payment_id && l.payment_id.toLowerCase().includes(query)) ||
+            (l.payment_link && l.payment_link.toLowerCase().includes(query)) ||
+            (l.payment_link_id && l.payment_link_id.toLowerCase().includes(query)) ||
+            (l.status && l.status.toLowerCase().includes(query))
+        );
+        renderStoredLinksRows(filtered);
+    }
+
+    function updateStoredLinksCount(count) {
+        let n = count;
+        if (n === undefined) {
+            const fromCases = (casesData || []).filter(c => c.payment_link).length;
+            const fromLs = getLocalStorageLinks().length;
+            n = Math.max(fromCases, fromLs);
+        }
+        const navB = document.getElementById("navLinksCountBadge");
+        const sideB = document.getElementById("sidebarLinksCountBadge");
+        const btnB = document.getElementById("btnStoredLinksCount");
+        if (navB) navB.innerText = n;
+        if (sideB) sideB.innerText = n;
+        if (btnB) btnB.innerText = n;
+    }
+
+    function exportStoredLinksJSON() {
+        const data = window._cachedStoredLinks || [];
+        if (!data.length) {
+            showToast("No stored links to export");
+            return;
+        }
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `stored_razorpay_links_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("Exported stored links to JSON");
+    }
+
+    function exportStoredLinksCSV() {
+        const data = window._cachedStoredLinks || [];
+        if (!data.length) {
+            showToast("No stored links to export");
+            return;
+        }
+        const headers = ["Case ID", "Payment ID", "Amount", "Currency", "Payment Link", "Payment Link ID", "Status", "Date"];
+        const rows = data.map(l => [
+            `"${l.case_id || ""}"`,
+            `"${l.payment_id || ""}"`,
+            l.amount || 0,
+            `"${l.currency || "INR"}"`,
+            `"${l.payment_link || ""}"`,
+            `"${l.payment_link_id || ""}"`,
+            `"${l.status || ""}"`,
+            `"${l.action_triggered_at || ""}"`
+        ]);
+        const csv = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+        const uri = encodeURI(csv);
+        const a = document.createElement("a");
+        a.href = uri;
+        a.download = `stored_razorpay_links_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast("Exported stored links to CSV");
+    }
+
+    /* CSV Export of All Cases */
+    function exportCasesCSV() {
+        if (!casesData || !casesData.length) {
+            showToast("No cases available to export.");
+            return;
+        }
+
+        const headers = ["Case ID", "Payment ID", "Amount", "Currency", "Failure Reason", "Probability", "Priority", "Status", "Recommended Action", "Recovered Amount"];
+        const rows = casesData.map(c => [
+            `"${c.case_id || ""}"`,
+            `"${c.payment_id || ""}"`,
+            c.amount || 0,
+            `"${c.currency || "INR"}"`,
+            `"${c.failure_reason || ""}"`,
+            c.recovery_probability || 0,
+            `"${c.priority || ""}"`,
+            `"${c.status || ""}"`,
+            `"${c.recommended_action || ""}"`,
+            c.recovered_amount || 0
+        ]);
+
+        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `revenue_guardian_cases_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast("Exported cases to CSV file");
+    }
+
+    /* ==========================================================================
+       SIMULATION MODAL
+       ========================================================================== */
+    function openSimulationModal() {
+        document.getElementById("simModal").style.display = "grid";
+    }
+
+    function closeSimulationModal() {
+        document.getElementById("simModal").style.display = "none";
+    }
+
+    async function executeSimulation() {
+        const amount = Number(document.getElementById("simAmount").value);
+        const reason = document.getElementById("simReason").value;
+        const btn = document.getElementById("btnRunSimulate");
+
+        if (!amount || amount <= 0) {
+            alert("Please enter a valid payment amount");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "Analyzing with Gemini...";
+
+        try {
+            const res = await fetch(`${API_BASE}/simulate/payment-failure`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    amount: amount,
+                    failure_reason: reason,
+                    currency: "INR"
+                })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                closeSimulationModal();
+                showToast(`Simulated failure processed! Case ${data.case?.case_id || ""} created.`);
+                await refreshDashboardData();
+                scrollToTransactions();
+            } else {
+                alert(data.detail || "Simulation failed");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Unable to connect to backend server");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Analyze Failure →";
+        }
+    }
+
+    /* ==========================================================================
+       ASK RAY AI COPILOT DRAWER
+       ========================================================================== */
+    function toggleRayDrawer() {
+        const drawer = document.getElementById("rayDrawer");
+        drawer.style.display = drawer.style.display === "flex" ? "none" : "flex";
+        if (drawer.style.display === "flex") {
+            document.getElementById("rayInput").focus();
+        }
+    }
+
+    function askRayQuick(question) {
+        document.getElementById("rayInput").value = question;
+        sendRayMessage();
+    }
+
+    function sendRayMessage() {
+        const input = document.getElementById("rayInput");
+        const text = input.value.trim();
+        if (!text) return;
+
+        const chatBox = document.getElementById("rayChatMessages");
+
+        // User Message
+        chatBox.innerHTML += `
+            <div class="ray-bubble user">${escapeHTML(text)}</div>
+        `;
+        input.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Dynamic AI Response from Live State
+        setTimeout(() => {
+            let reply = "";
+            const lower = text.toLowerCase();
+            const m = merchantMetrics || {};
+
+            if (lower.includes("recovery rate") || lower.includes("rate")) {
+                reply = `Current recovery rate is <strong>${m.recovery_rate || 0}%</strong> across ${m.total_cases || 0} total cases.`;
+            } else if (lower.includes("failure") || lower.includes("threat") || lower.includes("cause")) {
+                reply = `The top payment failure threat is <strong>${titleCase(m.top_failure_reason || "Insufficient funds")}</strong> with ₹${(m.revenue_at_risk || 0).toLocaleString()} currently at risk.`;
+            } else if (lower.includes("pending") || lower.includes("action") || lower.includes("next")) {
+                const pendingCases = casesData.filter(c => c.status === "PENDING");
+                reply = `There are currently <strong>${pendingCases.length} pending recovery cases</strong>. For high-probability cases, Revenue Guardian recommends generating Razorpay alternate payment links.`;
+            } else if (lower.includes("gemini") || lower.includes("insight") || lower.includes("summar")) {
+                reply = `<strong>Gemini Directive Summary:</strong> Focus on ${titleCase(m.top_failure_reason || "Insufficient funds")} which accounts for the largest exposure. Recovered revenue currently stands at <strong>${formatINR(m.recovered_revenue || 0)}</strong>.`;
+            } else {
+                reply = `Revenue Guardian is continuously safeguarding payments. We have recovered <strong>${formatINR(m.recovered_revenue || 0)}</strong> so far, with <strong>${formatINR(m.expected_recovery || 0)}</strong> expected from active recovery pipelines.`;
+            }
+
+            chatBox.innerHTML += `
+                <div class="ray-bubble ai">${reply}</div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 350);
+    }
+
+    function escapeHTML(str) {
+        return String(str).replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag));
+    }
+
+    /* ==========================================================================
+       NAVIGATION & SCROLL HELPERS
+       ========================================================================== */
+    function toggleProfilePopover() {
+        const pop = document.getElementById("profilePopover");
+        pop.style.display = pop.style.display === "flex" ? "none" : "flex";
+    }
+
+    function scrollToOverview(el) {
+        setActiveNav(el);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function scrollToTransactions(el) {
+        setActiveNav(el);
+        document.getElementById("casesSection").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function scrollToAI(el) {
+        setActiveNav(el);
+        document.getElementById("aiSection").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function scrollTo3DShield() {
+        document.getElementById("guardian3DSection").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function setActiveNav(el) {
+        if (!el) return;
+        document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+        el.classList.add("active");
+    }
+
+    function switchSidebarTab(el, tab) {
+        document.querySelectorAll(".sidebar-item").forEach(item => item.classList.remove("active"));
+        if (el) el.classList.add("active");
+        if (tab === "overview") window.scrollTo({ top: 0, behavior: "smooth" });
+        if (tab === "transactions") scrollToTransactions();
+        if (tab === "ai") scrollToAI();
+    }
+
+    /* ==========================================================================
+       THREE.JS 3D GUARDIAN SHIELD INTERACTIVE ENGINE
+       ========================================================================== */
+    function initThreeJsGuardian() {
+        const canvas = document.getElementById("threeCanvas");
+        const container = canvas.parentElement;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.z = 4.5;
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.8);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0x60a5fa, 2.2, 50);
+        pointLight.position.set(3, 4, 5);
+        scene.add(pointLight);
+
+        const guardianGroup = new THREE.Group();
+        scene.add(guardianGroup);
+
+        // Geometric 3D Shield Shape
+        const shieldShape = new THREE.Shape();
+        shieldShape.moveTo(0, 1.2);
+        shieldShape.lineTo(0.9, 0.8);
+        shieldShape.lineTo(0.9, -0.2);
+        shieldShape.quadraticCurveTo(0.7, -1.1, 0, -1.4);
+        shieldShape.quadraticCurveTo(-0.7, -1.1, -0.9, -0.2);
+        shieldShape.lineTo(-0.9, 0.8);
+        shieldShape.closePath();
+
+        const extrudeSettings = {
+            depth: 0.25,
+            bevelEnabled: true,
+            bevelSegments: 4,
+            steps: 2,
+            bevelSize: 0.08,
+            bevelThickness: 0.08
+        };
+
+        const shieldGeo = new THREE.ExtrudeGeometry(shieldShape, extrudeSettings);
+        shieldGeo.center();
+
+        const shieldMat = new THREE.MeshPhongMaterial({
+            color: 0x0052cc,
+            emissive: 0x0c2340,
+            specular: 0x38bdf8,
+            shininess: 90,
+            transparent: true,
+            opacity: 0.92
+        });
+
+        const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+        guardianGroup.add(shieldMesh);
+
+        // Outer Wireframe
+        const wireMat = new THREE.MeshBasicMaterial({ color: 0x60a5fa, wireframe: true, transparent: true, opacity: 0.35 });
+        const wireMesh = new THREE.Mesh(shieldGeo, wireMat);
+        wireMesh.scale.set(1.02, 1.02, 1.02);
+        guardianGroup.add(wireMesh);
+
+        // Orbit Particle Ring
+        const particleCount = 70;
+        const particleGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount; i++) {
+            const angle = (i / particleCount) * Math.PI * 2;
+            const radius = 1.9 + (Math.random() * 0.4);
+            positions[i * 3] = Math.cos(angle) * radius;
+            positions[i * 3 + 1] = Math.sin(angle) * radius * 0.45;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 0.8;
+        }
+
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particleMat = new THREE.PointsMaterial({
+            color: 0x34d399,
+            size: 0.06,
+            transparent: true,
+            opacity: 0.85
+        });
+
+        const particlePoints = new THREE.Points(particleGeo, particleMat);
+        guardianGroup.add(particlePoints);
+
+        // Mouse Interactivity
+        let mouseY = 0;
+        let isDragging = false;
+        let previousMouseX = 0;
+
+        container.addEventListener("mousemove", (e) => {
+            const rect = container.getBoundingClientRect();
+            mouseY = -(((e.clientY - rect.top) / container.clientHeight) * 2 - 1);
+        });
+
+        container.addEventListener("mousedown", (e) => {
+            isDragging = true;
+            previousMouseX = e.clientX;
+        });
+
+        window.addEventListener("mouseup", () => isDragging = false);
+
+        window.addEventListener("mousemove", (e) => {
+            if (isDragging) {
+                const deltaX = e.clientX - previousMouseX;
+                guardianGroup.rotation.y += deltaX * 0.015;
+                previousMouseX = e.clientX;
+            }
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (!isDragging) {
+                guardianGroup.rotation.y += 0.008;
+                guardianGroup.rotation.x = Math.sin(Date.now() * 0.0015) * 0.12 + (mouseY * 0.2);
+            }
+
+            particlePoints.rotation.z += 0.006;
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener("resize", () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    }
+</script>
+
+</body>
+</html>

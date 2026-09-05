@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Guardian · Razorpay AI Buildathon Pitch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rzp-blue: #0052cc;
+            --rzp-blue-light: #2684ff;
+            --rzp-cyan: #00d2ff;
+            --rzp-navy-bg: #070e1c;
+            --rzp-navy-card: #0d1a33;
+            --rzp-navy-card-border: rgba(38, 132, 255, 0.22);
+            --rzp-emerald: #10b981;
+            --rzp-amber: #f59e0b;
+            --rzp-rose: #ef4444;
+            --text-title: #ffffff;
+            --text-body: #94a3b8;
+            --text-light: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--rzp-navy-bg);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        /* Ambient Glows */
+        .glow-1 {
+            position: fixed;
+            top: -15%;
+            right: -10%;
+            width: 650px;
+            height: 650px;
+            background: radial-gradient(circle, rgba(0, 82, 204, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glow-2 {
+            position: fixed;
+            bottom: -20%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 210, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Top Bar */
+        .deck-header {
+            position: relative;
+            z-index: 10;
+            height: 64px;
+            padding: 0 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(7, 14, 28, 0.85);
+            backdrop-filter: blur(14px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .shield-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #0052cc, #00d2ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 0 20px rgba(0, 82, 204, 0.6);
+        }
+
+        .brand-title {
+            font-weight: 800;
+            font-size: 19px;
+            letter-spacing: -0.02em;
+            color: #fff;
+        }
+
+        .track-badge {
+            background: rgba(0, 82, 204, 0.25);
+            border: 1px solid rgba(0, 210, 255, 0.35);
+            color: #60a5fa;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 999px;
+            letter-spacing: 0.03em;
+        }
+
+        .slide-counter {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-body);
+            font-weight: 600;
+        }
+
+        /* Slide Viewport */
+        .deck-viewport {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 48px;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            max-width: 1180px;
+            height: 90%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(18px) scale(0.98);
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        /* Typography */
+        .eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--rzp-cyan);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--rzp-cyan);
+            box-shadow: 0 0 10px var(--rzp-cyan);
+        }
+
+        .title {
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            color: var(--text-title);
+            margin-bottom: 16px;
+        }
+
+        .title span {
+            background: linear-gradient(135deg, #60a5fa, #00d2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--text-body);
+            line-height: 1.55;
+            max-width: 900px;
+            margin-bottom: 30px;
+        }
+
+        /* Cards & Grids */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--rzp-navy-card);
+            border: 1px solid var(--rzp-navy-card-border);
+            border-radius: 14px;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 210, 255, 0.45);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .icon-blue { background: rgba(0, 82, 204, 0.3); color: #60a5fa; }
+        .icon-emerald { background: rgba(16, 185, 129, 0.25); color: #34d399; }
+        .icon-amber { background: rgba(245, 158, 11, 0.25); color: #fbbf24; }
+        .icon-rose { background: rgba(239, 68, 68, 0.25); color: #f87171; }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .card-text {
+            font-size: 14px;
+            color: var(--text-body);
+            line-height: 1.55;
+        }
+
+        /* Highlight Ribbon */
+        .formula-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 82, 204, 0.15);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 12px;
+            padding: 16px 28px;
+            margin-bottom: 26px;
+        }
+
+        .formula-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .formula-arrow {
+            color: var(--rzp-cyan);
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        /* 6 Step Flow Strip */
+        .flow-strip {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .flow-step {
+            background: rgba(13, 26, 51, 0.9);
+            border: 1px solid var(--rzp-navy-card-border);
+            border-radius: 10px;
+            padding: 14px 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .flow-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--rzp-cyan);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .flow-name {
+            font-weight: 800;
+            font-size: 15px;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .flow-desc {
+            font-size: 11px;
+            color: var(--text-body);
+            line-height: 1.3;
+        }
+
+        /* Metrics Banner */
+        .metric-banner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            background: rgba(13, 26, 51, 0.8);
+            border: 1px solid rgba(0, 210, 255, 0.25);
+            border-radius: 14px;
+            padding: 20px 24px;
+            margin-top: 22px;
+        }
+
+        .metric-col {
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            padding-right: 16px;
+        }
+        .metric-col:last-child {
+            border-right: none;
+            padding-right: 0;
+        }
+
+        .metric-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-body);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Core Takeaway Box */
+        .callout-box {
+            background: linear-gradient(135deg, rgba(0, 82, 204, 0.3) 0%, rgba(13, 26, 51, 0.9) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.4);
+            border-radius: 14px;
+            padding: 20px 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .callout-text {
+            font-size: 19px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .callout-text span {
+            color: var(--rzp-cyan);
+        }
+
+        /* Footer */
+        .deck-footer {
+            height: 64px;
+            padding: 0 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(7, 14, 28, 0.85);
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-hint {
+            font-size: 13px;
+            color: var(--text-body);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .kbd {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #fff;
+        }
+
+        .btn-grp {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--rzp-blue);
+            border-color: var(--rzp-blue-light);
+        }
+
+        .btn-glow {
+            background: linear-gradient(135deg, #0052cc, #1771f1);
+            border: none;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 20px rgba(0, 82, 204, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+
+    <!-- Header -->
+    <header class="deck-header">
+        <div class="brand">
+            <div class="shield-icon">🛡️</div>
+            <div class="brand-title">Revenue Guardian</div>
+            <span class="track-badge">Track 03 · AI Revenue Recovery</span>
+        </div>
+        <div class="slide-counter" id="slideCounter">SLIDE 01 / 06</div>
+    </header>
+
+    <!-- Slides Viewport -->
+    <main class="deck-viewport">
+
+        <!-- SLIDE 1: ATTENTION GRABBER & PROBLEM (0:00 - 0:45) -->
+        <section class="slide active" data-index="1">
+            <div class="eyebrow">Razorpay AI Buildathon 2026</div>
+            <h1 class="title">When a customer's payment fails,<br><span>where does that revenue go?</span></h1>
+            
+            <div class="formula-strip">
+                <div class="formula-item"><span>🚨</span> Payment Fails</div>
+                <div class="formula-arrow">→</div>
+                <div class="formula-item"><span>⚠️</span> Revenue is at Risk</div>
+                <div class="formula-arrow">→</div>
+                <div class="formula-item"><span>🛡️</span> Revenue Guardian Recovers It</div>
+            </div>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-top">
+                        <div class="icon-box icon-rose">🏦</div>
+                        <div class="card-title">Bank Degradation</div>
+                    </div>
+                    <div class="card-text">
+                        Temporary bank downtime or network timeouts during UPI authorization. The intent is real, but the transaction drops.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-top">
+                        <div class="icon-box icon-amber">💳</div>
+                        <div class="card-title">Balance / Method Dips</div>
+                    </div>
+                    <div class="card-text">
+                        Insufficient funds or expired cards. Blindly retrying triggers bank penalty blocks instead of offering an alternate rail.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-top">
+                        <div class="icon-box icon-emerald">⚡</div>
+                        <div class="card-title">Closed-Loop Recovery</div>
+                    </div>
+                    <div class="card-text">
+                        Revenue Guardian creates a recovery case, uses AI to diagnose, generates a bounded Razorpay link, and tracks recovery.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: HOW THE SYSTEM WORKS (0:45 - 1:40) -->
+        <section class="slide" data-index="2">
+            <div class="eyebrow">System Architecture & AI Judgment</div>
+            <h1 class="title">Two Distinct Layers:<br><span>Intelligence + Safety</span></h1>
+            
+            <div class="callout-box">
+                <div class="callout-text">
+                    The Rule: <span>AI decides</span> → <span>Python controls</span> → <span>Razorpay processes</span>
+                </div>
+                <span class="track-badge">Never trust AI with money</span>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-top">
+                        <div class="icon-box icon-blue">🧠</div>
+                        <div class="card-title">1. The Cognitive Layer (Gemini)</div>
+                    </div>
+                    <div class="card-text" style="font-size: 15px;">
+                        • Reads complex bank error codes and decline reasons.<br><br>
+                        • Recommends the right recovery action (e.g., alternate payment for insufficient funds).<br><br>
+                        • Generates polite, empathetic customer messaging without placing blame.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-top">
+                        <div class="icon-box icon-emerald">🔒</div>
+                        <div class="card-title">2. The Safety Layer (Backend & DB)</div>
+                    </div>
+                    <div class="card-text" style="font-size: 15px;">
+                        • Payment amounts, case statuses, and rules are <strong>100% deterministic</strong>.<br><br>
+                        • Recovery amount is strictly locked to the original failed amount.<br><br>
+                        • Enforces <strong>Stopping Rules</strong>: halts on fraud alerts, manual review for GMV &gt; ₹15k.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: THE 6-STEP CLOSED LOOP -->
+        <section class="slide" data-index="3">
+            <div class="eyebrow">The Core Workflow</div>
+            <h1 class="title">The 6 Words to Remember:<br><span>Problem to Measured Recovery</span></h1>
+            <p class="subtitle" style="margin-bottom: 24px;">
+                A complete closed-loop agent: turning an untracked loss into an explainable, auditable recovery.
+            </p>
+
+            <div class="flow-strip">
+                <div class="flow-step">
+                    <div class="flow-num">STEP 01</div>
+                    <div class="flow-name">PROBLEM</div>
+                    <div class="flow-desc">Customer payment fails, revenue is at risk</div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">STEP 02</div>
+                    <div class="flow-name">DETECT</div>
+                    <div class="flow-desc">Webhook creates structured recovery case</div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">STEP 03</div>
+                    <div class="flow-name">AI</div>
+                    <div class="flow-desc">Gemini analyzes root cause & priority</div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">STEP 04</div>
+                    <div class="flow-name">ACT</div>
+                    <div class="flow-desc">Creates bounded Razorpay Payment Link</div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">STEP 05</div>
+                    <div class="flow-name">RECOVER</div>
+                    <div class="flow-desc">Customer completes payment via checkout</div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">STEP 06</div>
+                    <div class="flow-name">MEASURE</div>
+                    <div class="flow-desc">Auto-marked RECOVERED & logged to audit</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; text-align: center;">
+                <button class="btn btn-glow" style="margin: 0 auto; font-size: 15px; padding: 12px 28px;" onclick="window.open('frontend/dashboard.html', '_blank')">
+                    🚀 Transition to Live Dashboard Demo (1:40 - 2:55)
+                </button>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: THE BAR — MEASURED BATCH RECOVERY (2:55 - 3:55) -->
+        <section class="slide" data-index="4">
+            <div class="eyebrow">Razorpay Track 03 Requirement</div>
+            <h1 class="title">Meeting "The Bar":<br><span>Measured Money Across a Batch</span></h1>
+            <p class="subtitle" style="margin-bottom: 16px;">
+                "Don't just identify the problem. Show measured money recovered across a batch, with compliant escalation, stopping rules, and an audit trail."
+            </p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-top">
+                        <div class="icon-box icon-amber">🛑</div>
+                        <div class="card-title">Stopping Rules in Action</div>
+                    </div>
+                    <div class="card-text">
+                        • <strong>Security / Fraud Halt:</strong> Halts automated retries on stolen card flags or velocity spikes.<br>
+                        • <strong>High-Value Gate:</strong> Orders &gt; ₹15,000 require merchant sign-off.<br>
+                        • <strong>Expiry Cooldown:</strong> Stale cases expire cleanly after 72 hours.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-top">
+                        <div class="icon-box icon-emerald">📑</div>
+                        <div class="card-title">Full Financial Audit Trail</div>
+                    </div>
+                    <div class="card-text">
+                        Every single recovery case records: original payment ID, amount, AI decision, Razorpay link ID, timestamps, and final recovery result in PostgreSQL and server JSON logs.
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-banner">
+                <div class="metric-col">
+                    <div class="metric-val">₹95,341</div>
+                    <div class="metric-label">Cohort GMV Processed</div>
+                </div>
+                <div class="metric-col">
+                    <div class="metric-val">4 Cases</div>
+                    <div class="metric-label">Stopping Rules Enforced</div>
+                </div>
+                <div class="metric-col">
+                    <div class="metric-val">₹25,943</div>
+                    <div class="metric-label">Measured Money Recovered</div>
+                </div>
+                <div class="metric-col">
+                    <div class="metric-val">27.21%</div>
+                    <div class="metric-label">Batch Recovery Rate</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: WHAT BROKE & HOW WE FIXED IT (3:55 - 4:35) -->
+        <section class="slide" data-index="5">
+            <div class="eyebrow">Failure Recovery & Real Engineering</div>
+            <h1 class="title">Problems Faced During Development<br><span>and How We Fixed Them</span></h1>
+            
+            <div class="grid-3" style="margin-top: 20px;">
+                <div class="card">
+                    <div class="card-top">
+                        <div class="icon-box icon-blue">🌐</div>
+                        <div class="card-title">1. Local Testing & Webhooks</div>
+                    </div>
+                    <div class="card-text">
+                        <strong>Challenge:</strong> Webhooks cannot hit localhost without unstable tunnels.<br><br>
+                        <strong>Fix:</strong> Implemented signed webhook verification for production, plus active Razorpay Test API sync for rock-solid local demo reliability.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-top">
+                        <div class="icon-box icon-amber">⚡</div>
+                        <div class="card-title">2. Idempotency & Safety</div>
+                    </div>
+                    <div class="card-text">
+                        <strong>Challenge:</strong> Rapid clicks could spawn duplicate links or double recovery.<br><br>
+                        <strong>Fix:</strong> Enforced state machine checks (<code>PENDING</code> → <code>ACTION_TRIGGERED</code>) and bound Razorpay's <code>reference_id</code> to the case ID.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-top">
+                        <div class="icon-box icon-emerald">💰</div>
+                        <div class="card-title">3. AI Financial Isolation</div>
+                    </div>
+                    <div class="card-text">
+                        <strong>Challenge:</strong> Risk of LLM hallucinating amounts or unauthorized discounts.<br><br>
+                        <strong>Fix:</strong> Strictly separated AI recommendations from financial invariants. Python code controls the exact paise sent to Razorpay.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: CONCLUSION & ONE SENTENCE (4:35 - 5:00) -->
+        <section class="slide" data-index="6">
+            <div class="eyebrow">Conclusion</div>
+            <h1 class="title">Turning Failed Payments into<br><span>Recovered Revenue</span></h1>
+            
+            <div class="callout-box" style="padding: 28px; margin: 30px 0;">
+                <div class="callout-text" style="font-size: 21px; line-height: 1.5;">
+                    “Revenue Guardian is an AI-powered revenue recovery agent that detects failed payments, uses AI to recommend the right recovery action, creates a Razorpay Test Mode payment request, and tracks resulting recovered revenue with safety rules and an audit trail.”
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="card" style="text-align: center;">
+                    <div class="card-title" style="color: var(--rzp-cyan); font-size: 20px; margin-bottom: 6px;">AI Intelligence</div>
+                    <div class="card-text">Contextual root-cause diagnosis and non-accusatory customer messaging.</div>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <div class="card-title" style="color: var(--rzp-emerald); font-size: 20px; margin-bottom: 6px;">Deterministic Safety</div>
+                    <div class="card-title" style="color: var(--rzp-emerald); font-size: 14px; margin-bottom: 6px;">Bounded money & stopping rules.</div>
+                    <div class="card-text">Python & PostgreSQL guardrails prevent hallucinations and fraud retries.</div>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <div class="card-title" style="color: #60a5fa; font-size: 20px; margin-bottom: 6px;">Razorpay Test Rails</div>
+                    <div class="card-text">Real payment links, test checkout, and automated settlement tracking.</div>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 30px; font-size: 18px; font-weight: 700; color: #fff;">
+                Thank you, Razorpay Team!
+            </p>
+        </section>
+
+    </main>
+
+    <!-- Footer Controls -->
+    <footer class="deck-footer">
+        <div class="footer-hint">
+            <span>Press</span>
+            <span class="kbd">←</span>
+            <span class="kbd">→</span>
+            <span>or</span>
+            <span class="kbd">Space</span>
+            <span>to navigate · Press</span>
+            <span class="kbd">F11</span>
+            <span>for fullscreen presentation</span>
+        </div>
+        <div class="btn-grp">
+            <button class="btn" onclick="prevSlide()">← Previous</button>
+            <button class="btn btn-glow" onclick="nextSlide()">Next Slide →</button>
+        </div>
+    </footer>
+
+    <script>
+        let cur = 1;
+        const total = 6;
+
+        function showSlide(idx) {
+            if (idx < 1) idx = 1;
+            if (idx > total) idx = total;
+            cur = idx;
+
+            document.querySelectorAll('.slide').forEach(s => {
+                s.classList.remove('active');
+                if (parseInt(s.dataset.index) === cur) {
+                    s.classList.add('active');
+                }
+            });
+
+            document.getElementById('slideCounter').textContent = 
+                `SLIDE ${cur.toString().padStart(2, '0')} / ${total.toString().padStart(2, '0')}`;
+        }
+
+        function nextSlide() { showSlide(cur + 1); }
+        function prevSlide() { showSlide(cur - 1); }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+    </script>
+</body>
+</html>
