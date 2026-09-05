@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Revenue Guardian 🛡️
 
 ### Autonomous AI Revenue Recovery Agent for Razorpay Merchants
@@ -287,3 +288,6 @@ See [`PITCH_VIDEO_SCRIPT.md`](PITCH_VIDEO_SCRIPT.md) for the exact slide-by-slid
 
 ## 📄 License
 This project is open-source under the [MIT License](LICENSE). Built for the **Razorpay AI Buildathon 2026**.
+=======
+# Revenue_Guardian
+>>>>>>> 43121c1d514f839cfdddb56eeb4f09de3a82f868
